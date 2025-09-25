@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { Pool, PoolClient, QueryResult } from 'pg';
+import { Pool, PoolClient } from 'pg';
 
 @Injectable()
 export class DbConnectionService {
@@ -22,6 +22,23 @@ export class DbConnectionService {
   }
 
   async runQuery<T extends number, R extends number>(sql: string, values?: T extends number ? number[] : never): Promise<R>  {
-    return await this.pool.query(sql, values);
+
+    const pgClient = await this.getClient();
+
+    let resp;
+
+    try {
+      await pgClient.query('BEGIN');
+      const getResp = await this.pool.query('SELECT id from public.task_queue  for update skip locked limit 1');
+      console.log('GET_RESP_____', getResp);
+      resp = await this.pool.query(sql, values);
+      await pgClient.query('COMMIT');
+    } catch (err) {
+      console.log('ERROR_OCCURED________', err);
+      await pgClient.query('ROLLBACK');
+      throw err;
+    }
+
+    return resp;
   }
 }

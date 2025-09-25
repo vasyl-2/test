@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+
 import { ITaskService } from "./i-task-service";
 import { Task } from "../models/task";
 import { DbConnectorService } from "../services/db-connector.service";
@@ -27,7 +28,7 @@ export class TaskService implements ITaskService {
 
   async updateTask(id: string): Promise<number> {
     const taskId = +id;
-    const sql = "UPDATE public.task_queue set task_name = 'newtask' WHERE id = $1";
+    const sql = "UPDATE public.task_queue set task_name = 'newtask4' WHERE id = $1";
     console.log('ID_____________', taskId);
     const updated = await this.bbConnectorService.runQuery<number, number>(sql, [taskId]);
 
